@@ -111,10 +111,12 @@ public class Logic : MonoBehaviour
                 }
                 if(total + (filas[i].ToString().Split(',').Length - 1) == y)
                 {
-                    for (int j = 0; j < y; j++)
+                    for (int j = 0, k = 0; j < y; j++, k++)
                     {
-                        if(pistas.Contains(j)) {
+                        if(pistas.Count != 0 && pistas[0].ToString() == k.ToString()) {
                             matriz[i, j] = 0;
+                            k = -1;
+                            pistas.RemoveAt(0);
                         }
                         else
                         {
@@ -136,7 +138,36 @@ public class Logic : MonoBehaviour
                     for (int j = 0; j < x; j++)
                     {
                         changeSprite(cubitos[j, i]);
+                        matriz[j, i] = 0;
                         Debug.Log(i + " " + j);
+                    }
+                }
+            }
+            else
+            {
+                int total = 0;
+                ArrayList pistas = new ArrayList();
+                foreach (string num in columnas[i].ToString().Replace(" ", "").Split(','))
+                {
+                    total += int.Parse(num);
+                    pistas.Add(int.Parse(num));
+                }
+                if (total + (columnas[i].ToString().Split(',').Length - 1) == y)
+                {
+                    for (int j = 0, k = 0; j < y; j++, k++)
+                    {
+                        if (pistas.Count != 0 && pistas[0].ToString() == k.ToString())
+                        {
+                            matriz[j, i] = 0;
+                            k = -1;
+                            pistas.RemoveAt(0);
+                        }
+                        else
+                        {
+                            changeSprite(cubitos[j, i]);
+                            matriz[j, i] = 1;
+                            Debug.Log(i + "," + j);
+                        }
                     }
                 }
             }
