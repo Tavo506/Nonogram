@@ -22,6 +22,8 @@ public class Logic : MonoBehaviour
         x = int.Parse(nonogram[0].Split(',')[0]);
         y = int.Parse(nonogram[0].Split(',')[1].Replace(" ", ""));
 
+        
+
         matriz = new int[x, y];
         cubitos = new GameObject[x, y];
 
@@ -41,7 +43,7 @@ public class Logic : MonoBehaviour
             columnas.Add(nonogram[i]);
             i++;
         }
-
+        /*
         Debug.Log("FILAS");
 
         foreach (string fila in filas)
@@ -57,9 +59,9 @@ public class Logic : MonoBehaviour
 
             Debug.Log("\t" + columna);
         }
-
+        */
         generarNonograma();
-
+        transform.position = new Vector2(-x/7.2f, y/7.2f);
         resolverNonograma();
     }
 
@@ -73,7 +75,7 @@ public class Logic : MonoBehaviour
                 casilla.transform.SetParent(this.transform);
                 casilla.AddComponent<SpriteRenderer>();
                 casilla.GetComponent<SpriteRenderer>().sprite = state1;
-                casilla.transform.position = new Vector2(i * 0.30f, j * -0.30f);
+                casilla.transform.position = new Vector2(i * 0.33f, j * -0.33f);
                 cubitos[j, i] = casilla;
             }
         }
@@ -87,19 +89,36 @@ public class Logic : MonoBehaviour
 
     public void resolverNonograma()
     {
+        //Filas----------------------------------------------------
         for(int i = 0; i < x; i++) //Rellena filas
         {
             if (filas[i].ToString().Split(',').Length == 1)
             {
-                if(int.Parse(filas[i].ToString()) == y)
+                int pista = int.Parse(filas[i].ToString());
+                if (pista == y) //Si cubre toda la fila
                 {
                     for(int j = 0; j < y; j++)
                     {
                         changeSprite(cubitos[i, j]);
                         matriz[i, j] = 1;
-                        Debug.Log(i + "," + j);
+                        //Debug.Log(i + "," + j);
                     }
                 }
+                else if (y / 2 < pista) //Si hay parte fija en el medio
+                {
+                    for (int n = 1, m = y - 2; n < m; n++, m--)
+                    {
+                        Debug.Log(i + "," + n);
+                        if (n + pista >= x)
+                        {
+                            changeSprite(cubitos[i, n]);
+                            changeSprite(cubitos[i, m]);
+                            matriz[i, n] = 1;
+                            matriz[i, m] = 1;
+                        }
+                    }
+                }
+
             }
             else{
                 int total = 0;
@@ -122,24 +141,40 @@ public class Logic : MonoBehaviour
                         {
                             changeSprite(cubitos[i, j]);
                             matriz[i, j] = 1;
-                            Debug.Log(i + "," + j);
+                            //Debug.Log(i + "," + j);
                         }
                     }
                 }
+
             }
 
         }
+
+        //Columnas--------------------------------------------------------
         for (int i = 0; i < y; i++) //Rellena columnas
         {
             if (columnas[i].ToString().Split(',').Length == 1)
             {
-                if (int.Parse(columnas[i].ToString()) == x)
+                int pista = int.Parse(columnas[i].ToString());
+                if (pista == x)
                 {
                     for (int j = 0; j < x; j++)
                     {
                         changeSprite(cubitos[j, i]);
                         matriz[j, i] = 0;
-                        Debug.Log(i + " " + j);
+                        //Debug.Log(i + " " + j);
+                    }
+                }
+                else if (x/2 < pista) { 
+                    for(int n = 1, m = x-2; n < m; n++, m--)
+                    {
+                        if(n + pista >= y)
+                        {
+                            changeSprite(cubitos[n, i]);
+                            changeSprite(cubitos[m, i]);
+                            matriz[n, i] = 1;
+                            matriz[m, i] = 1;
+                        }
                     }
                 }
             }
@@ -166,7 +201,7 @@ public class Logic : MonoBehaviour
                         {
                             changeSprite(cubitos[j, i]);
                             matriz[j, i] = 1;
-                            Debug.Log(i + "," + j);
+                            //Debug.Log(i + "," + j);
                         }
                     }
                 }
