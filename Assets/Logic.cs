@@ -113,9 +113,14 @@ public class Logic : MonoBehaviour
 
     public void resolverNonograma()
     {
+
+        revisarPistasNulas();
+
         //Filas----------------------------------------------------
         for (int i = 0; i < x; i++) //Rellena filas
         {
+            if (filas[i].ToString() == "0") continue;
+
             if (filas[i].ToString().Split(',').Length == 1)
             {
                 int pista = int.Parse(filas[i].ToString());
@@ -128,6 +133,7 @@ public class Logic : MonoBehaviour
                         
                         //Debug.Log(i + "," + j);
                     }
+                    filas[i] = "0";
                 }
                 else if (y / 2 < pista) //Si hay parte fija en el medio
                 {
@@ -169,6 +175,7 @@ public class Logic : MonoBehaviour
                             //Debug.Log(i + "," + j);
                         }
                     }
+                    filas[i] = "0";
                 }
 
             }
@@ -178,6 +185,8 @@ public class Logic : MonoBehaviour
         //Columnas--------------------------------------------------------
         for (int i = 0; i < y; i++) //Rellena columnas
         {
+            if (columnas[i].ToString() == "0") continue;
+
             if (columnas[i].ToString().Split(',').Length == 1)
             {
                 int pista = int.Parse(columnas[i].ToString());
@@ -189,6 +198,7 @@ public class Logic : MonoBehaviour
                         matriz[j, i] = 1;
                         //Debug.Log(i + " " + j);
                     }
+                    columnas[i] = "0";
                 }
                 else if (x / 2 < pista) {
                     for (int n = 1, m = x - 2; n < m; n++, m--)
@@ -229,11 +239,13 @@ public class Logic : MonoBehaviour
                             //Debug.Log(i + "," + j);
                         }
                     }
+                    columnas[i] = "0";
                 }
             }
         }
 
         completarBordesFilas();
+        completarBordesColumnas();
 
 
         for (int conta_filas=0; conta_filas<x-1; conta_filas++)
@@ -261,7 +273,7 @@ public class Logic : MonoBehaviour
         Debug.Log("Nonograma Resuelto");
     }
 
-    void completarBordesFilas()
+    void completarBordesFilas() //Revisa si se pueden comletar pistas que ya inicien en un extremo
     {
         for(int i = 0; i < y; i++)
         {
@@ -270,29 +282,76 @@ public class Logic : MonoBehaviour
             {
                 if (int.Parse(col[0]) > 1)
                 {
-                    rellenaColumnas(1, i, int.Parse(col[0]));
+                    rellenaColumnas(1, i, int.Parse(col[0]), 1);
                 }
             }
             if(matriz[x-1, i] == 1)
             {
                 if (col.Length > 1 && int.Parse(col[col.Length-1]) > 1)
                 {
-                    rellenaColumnas(x-int.Parse(col[col.Length-1]), i, x-1);
+                    rellenaColumnas(x-int.Parse(col[col.Length-1]), i, x-1, 1);
                 }
             }
         }
     }
 
-    void rellenaColumnas(int inicio, int colum, int lim)
+    void rellenaColumnas(int inicio, int colum, int lim, int x)
     {
         for(int i = inicio; i < lim; i++)
         {
             if(matriz[i,colum] == -1)
             {
-                matriz[i, colum] = 1;
+                matriz[i, colum] = x;
                 changeSprite(cubitos[i, colum]);
             }
         }
     }
 
+    void completarBordesColumnas()
+    {
+        for (int i = 0; i < x; i++)
+        {
+            string[] fil = filas[i].ToString().Split(',');
+            if (matriz[i, 0] == 1)
+            {
+                if (int.Parse(fil[0]) > 1)
+                {
+                    rellenaFilas(1, i, int.Parse(fil[0]), 1);
+                }
+            }
+            if (matriz[i, y-1] == 1)
+            {
+                if (fil.Length > 1 && int.Parse(fil[fil.Length - 1]) > 1)
+                {
+                    rellenaFilas(x - int.Parse(fil[fil.Length - 1]), i, x - 1, 1);
+                }
+            }
+        }
+    }
+    void rellenaFilas(int inicio, int fila, int lim, int x)
+    {
+        for (int i = inicio; i < lim; i++)
+        {
+            if (matriz[fila, i] == -1)
+            {
+                matriz[fila, i] = x;
+                changeSprite(cubitos[fila, i]);
+            }
+        }
+    }
+
+    void revisarPistasNulas()
+    {
+        for(int i = 0; i < x; i++)
+        {
+            if(filas[i].ToString() == "0")
+            {
+                rellenaColumnas(0, i, y-1, 0);
+            }
+            if(columnas[i].ToString() == "0")
+            {
+                rellenaFilas(0, i, x - 1, 0);
+            }
+        }
+    }
 }
