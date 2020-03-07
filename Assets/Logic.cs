@@ -25,9 +25,18 @@ public class Logic : MonoBehaviour
         
 
         matriz = new int[x, y];
+
+        for(int n = 0; n < x; n++)
+        {
+            for(int m = 0; m < y; m++)
+            {
+                matriz[n, m] = -1;
+            }
+        }
+
         cubitos = new GameObject[x, y];
 
-        Debug.Log("DIMENSIONES: " + x + ", " + y);
+        //Debug.Log("DIMENSIONES: " + x + ", " + y);
 
         int i = 2;
 
@@ -81,6 +90,21 @@ public class Logic : MonoBehaviour
         }
     }
 
+    int cuantoshayfila(int x){
+        int n=0;
+        for(int i=0; i!=y; i++)
+        {
+            //Debug.Log(matriz[x,i]);
+            if (matriz[x,i] == 1)
+            {
+                n++;
+            }
+        }
+        Debug.Log(n);
+        return n;
+
+    }
+
     void changeSprite(GameObject cuadro)
     {
         cuadro.GetComponent<SpriteRenderer>().sprite = state2;
@@ -90,17 +114,18 @@ public class Logic : MonoBehaviour
     public void resolverNonograma()
     {
         //Filas----------------------------------------------------
-        for(int i = 0; i < x; i++) //Rellena filas
+        for (int i = 0; i < x; i++) //Rellena filas
         {
             if (filas[i].ToString().Split(',').Length == 1)
             {
                 int pista = int.Parse(filas[i].ToString());
                 if (pista == y) //Si cubre toda la fila
                 {
-                    for(int j = 0; j < y; j++)
+                    for (int j = 0; j < y; j++)
                     {
                         changeSprite(cubitos[i, j]);
                         matriz[i, j] = 1;
+                        
                         //Debug.Log(i + "," + j);
                     }
                 }
@@ -108,7 +133,7 @@ public class Logic : MonoBehaviour
                 {
                     for (int n = 1, m = y - 2; n < m; n++, m--)
                     {
-                        Debug.Log(i + "," + n);
+                        //Debug.Log(i + "," + n);
                         if (n + pista >= x)
                         {
                             changeSprite(cubitos[i, n]);
@@ -120,19 +145,19 @@ public class Logic : MonoBehaviour
                 }
 
             }
-            else{
+            else {
                 int total = 0;
                 ArrayList pistas = new ArrayList();
-                foreach(string num in filas[i].ToString().Replace(" ", "").Split(','))
+                foreach (string num in filas[i].ToString().Replace(" ", "").Split(','))
                 {
                     total += int.Parse(num);
                     pistas.Add(int.Parse(num));
                 }
-                if(total + (filas[i].ToString().Split(',').Length - 1) == y)
+                if (total + (filas[i].ToString().Split(',').Length - 1) == y)
                 {
                     for (int j = 0, k = 0; j < y; j++, k++)
                     {
-                        if(pistas.Count != 0 && pistas[0].ToString() == k.ToString()) {
+                        if (pistas.Count != 0 && pistas[0].ToString() == k.ToString()) {
                             matriz[i, j] = 0;
                             k = -1;
                             pistas.RemoveAt(0);
@@ -161,14 +186,14 @@ public class Logic : MonoBehaviour
                     for (int j = 0; j < x; j++)
                     {
                         changeSprite(cubitos[j, i]);
-                        matriz[j, i] = 0;
+                        matriz[j, i] = 1;
                         //Debug.Log(i + " " + j);
                     }
                 }
-                else if (x/2 < pista) { 
-                    for(int n = 1, m = x-2; n < m; n++, m--)
+                else if (x / 2 < pista) {
+                    for (int n = 1, m = x - 2; n < m; n++, m--)
                     {
-                        if(n + pista >= y)
+                        if (n + pista >= y)
                         {
                             changeSprite(cubitos[n, i]);
                             changeSprite(cubitos[m, i]);
@@ -207,6 +232,24 @@ public class Logic : MonoBehaviour
                 }
             }
         }
+
+        completarBordesFilas();
+
+
+        for (int conta_filas=0; conta_filas<x-1; conta_filas++)
+        {
+            //Debug.Log(cuantoshayfila(0));
+            //Debug.Log(matriz[5,5]);
+
+            if(filas[conta_filas].ToString() == cuantoshayfila(conta_filas).ToString())
+            {
+                Debug.Log("bromomento");
+            }
+            
+        }
+
+
+
         // while (!resuelto)
         {
             //foreach(string fila in filas)
@@ -214,8 +257,42 @@ public class Logic : MonoBehaviour
                 
             }
         }
-
+        
         Debug.Log("Nonograma Resuelto");
+    }
+
+    void completarBordesFilas()
+    {
+        for(int i = 0; i < y; i++)
+        {
+            string[] col = columnas[i].ToString().Split(',');
+            if (matriz[0,i] == 1)
+            {
+                if (int.Parse(col[0]) > 1)
+                {
+                    rellenaColumnas(1, i, int.Parse(col[0]));
+                }
+            }
+            if(matriz[x-1, i] == 1)
+            {
+                if (col.Length > 1 && int.Parse(col[col.Length-1]) > 1)
+                {
+                    rellenaColumnas(x-int.Parse(col[col.Length-1]), i, x-1);
+                }
+            }
+        }
+    }
+
+    void rellenaColumnas(int inicio, int colum, int lim)
+    {
+        for(int i = inicio; i < lim; i++)
+        {
+            if(matriz[i,colum] == -1)
+            {
+                matriz[i, colum] = 1;
+                changeSprite(cubitos[i, colum]);
+            }
+        }
     }
 
 }
