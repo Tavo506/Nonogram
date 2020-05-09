@@ -90,7 +90,7 @@ public class Logic : MonoBehaviour
         //yield return new WaitForSeconds(1f);
         generarNonograma();
         transform.position = new Vector2(-x / 7.2f, y / 7.2f);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         StartCoroutine(resolverNonograma());
     }
 
@@ -117,7 +117,7 @@ public class Logic : MonoBehaviour
         for (int i = 0; i != y; i++)
         {
             //Debug.Log(matriz[x,i]);
-            if (matriz[z, i] == 1)
+            if (matriz[z, i] == 1 || matriz[z, i] == 2)
             {
                 n++;
             }
@@ -132,7 +132,7 @@ public class Logic : MonoBehaviour
         int n = 0;
         for (int i = 0; i != x; i++)
         {
-            if (matriz[i, z] == 1)
+            if (matriz[i, z] == 1 || matriz[i, z] == 2)
             {
                 n++;
             }
@@ -160,7 +160,7 @@ public class Logic : MonoBehaviour
         //Filas----------------------------------------------------
         for (int i = 0; i < x; i++) //Rellena filas
         {
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(0.1f);
             if (filas[i].ToString() == "0") continue;   //Si es una pista vacia se ignora
 
             if (filas[i].ToString().Split(',').Length == 1) //Si es una sola pista...
@@ -253,7 +253,7 @@ public class Logic : MonoBehaviour
         //Columnas--------------------------------------------------------
         for (int i = 0; i < y; i++) //Rellena columnas
         {
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(0.1f);
             if (columnas[i].ToString() == "0") continue;     //Si es una pista vacia se ignora
 
             if (columnas[i].ToString().Split(',').Length == 1)  //Si es una sola pista...
@@ -271,7 +271,7 @@ public class Logic : MonoBehaviour
                 }
                 else if (x / 2 < pista)
                 {   //Si hay parte fija en el medio
-                    for (int n = 1, m = x - 2; n < m; n++, m--)
+                    for (int n = 1, m = x - 2; n <= m; n++, m--)
                     {
                         if (n + pista >= y)
                         {
@@ -334,22 +334,23 @@ public class Logic : MonoBehaviour
                 }
             }
         }
-        Debug.Log(columnas[6]);
-        Debug.Log(filas[7]);
+
         verificarCompletos();
         completarBordesFilas();
         completarBordesColumnas();
         verificarCompletos();
-        Debug.Log(columnas[6]);
-        Debug.Log(filas[7]);
-        yield return new WaitForSeconds(0.25f);
-        for (int i = 0; i < 11; i++)
+
+        yield return new WaitForSeconds(0.2f);
+        //for (int i = 0; i < 11; i++)
         {
-            buscarvacios();
+            buscarvaciosF();
             verificarCompletos();
+            yield return new WaitForSeconds(0.3f);
+            buscarvaciosC();
+            verificarCompletos();
+            yield return new WaitForSeconds(0.3f);
         }
-        Debug.Log(columnas[6]);
-        Debug.Log(filas[7]);
+
         verificarNulos();
         revisar();
 
@@ -505,7 +506,7 @@ public class Logic : MonoBehaviour
 
     }
 
-    void buscarvacios()
+    void buscarvaciosF()
     {
         for(int i=0; i<x; i++)
         {
@@ -517,12 +518,27 @@ public class Logic : MonoBehaviour
                     {
                         if (matriz[i, j] == -1)
                         {
-                            if (probarF(i, j))
-                            {
-                                break;
-                            }
-                            //probarC(i, j);
-                            
+                            probarF(i, j);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    void buscarvaciosC()
+    {
+        for (int i = 0; i < x; i++)
+        {
+            if (filas[i].ToString() != "0")
+            {
+                for (int j = 0; j < y; j++)
+                {
+                    if (columnas[j].ToString() != "0")
+                    {
+                        if (matriz[i, j] == -1)
+                        {
+                            probarC(i, j);
                         }
                     }
                 }
@@ -551,7 +567,8 @@ public class Logic : MonoBehaviour
             }
         }
 
-        if (filas[i].ToString().Replace(",", "").Replace(" ", "") == recorredor.Replace(",", "") && probarC(i,j))
+
+        if (filas[i].ToString().Replace(",", "").Replace(" ", "") == recorredor.Replace(",", "") && probarCX(j))
         {
             while (j > 0 && matriz[i, j] == 2)
             {
@@ -582,34 +599,39 @@ public class Logic : MonoBehaviour
     }
 
 
-    bool probarC(int i, int j)
+    bool probarCX(int j)
     {
-        string recorredor = "";
-        int n = 0;
-        
-        for (int conta = 0; conta < y; conta++)
-        {
-            if (matriz[conta, j] == 1 || matriz[conta, j] == 2)
-            {
-                n++;
-            }
-            if ((matriz[conta, j] == 0 || matriz[conta, j] == -1 || conta + 1 == y) && n != 0)
-            {
-                recorredor += n + ",";
-                n = 0;
-            }
-        }
 
-        if (columnas[j].ToString().Replace(",", "").Replace(" ", "") == recorredor.Replace(",", ""))
-        {
-            return true;
-        }else
+        string[] a = columnas[j].ToString().Replace(" ", "").Split(',');
+        int n = 0;
+
+        for (int i = 0; i < a.Length; i++)
+            n += int.Parse(a[i]);
+        if (cuantoshaycolumna(j) > n)
             return false;
+        else
+            return true;
     }
 
-    /*
-    void probarC(int i, int j)
+    bool probarFX(int j)
     {
+
+        string[] a = filas[j].ToString().Replace(" ", "").Split(',');
+        int n = 0;
+
+        for (int i = 0; i < a.Length; i++)
+            n += int.Parse(a[i]);
+
+        if (cuantoshayfila(j) > n)
+            return false;
+        else
+            return true;
+    }
+
+
+    bool probarC(int i, int j)
+    {
+        bool a = false;
         string recorredor = "";
         int n = 0;
         matriz[i, j] = 2;
@@ -625,10 +647,11 @@ public class Logic : MonoBehaviour
                 n = 0;
             }
         }
-        Debug.Log(columnas[i].ToString());
-        Debug.Log(recorredor);
 
-        if (columnas[i].ToString().Replace(",", "").Replace(" ", "") == recorredor.Replace(",", ""))
+        if (i == 7 && j == 9)
+            Debug.Log(recorredor + " - " + columnas[j]);
+
+        if (columnas[j].ToString().Replace(",", "").Replace(" ", "") == recorredor.Replace(",", "") && probarFX(i))
         {
             while (matriz[i, j] == 2)
             {
@@ -636,13 +659,35 @@ public class Logic : MonoBehaviour
                 changeSprite(cubitos[i, j], state2);
                 i--;
             }
-            verificarCompletos();
+            //verificarCompletos();
+            return true;
         }
-        else if (i + 1 != x)
+        else if (i + 1 != x && matriz[i+1, j] == -1)
         {
-            probarC(i+1, j);
+            a = probarC(i + 1, j);
         }
+        if (!a)
+        {
+            while (i > 0 && matriz[i, j] == 2)
+            {
+                //cubitos[i, j].GetComponent<SpriteRenderer>().sortingOrder = 0;
+                matriz[i, j] = -1;
+                i--;
+            }
+            return false;
+        }
+        else
+            return true;
     }
-    */
+    
+    public void verPistas()
+    {
+        Debug.Log("FILAS");
+        for (int i = 0; i < x; i++)
+            Debug.Log(i + " :  " + filas[i]);
+        Debug.Log("COLUMNAS");
+        for (int i = 0; i < y; i++)
+            Debug.Log(i + " :  " + columnas[i]);
+    }
 
 }
