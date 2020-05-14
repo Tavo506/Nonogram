@@ -50,7 +50,7 @@ public class Logic : MonoBehaviour
 
         while (nonogram[i] != "COLUMNAS")
         {
-            filas.Add(nonogram[i]);
+            filas.Add(nonogram[i].Replace(" ", ""));
             i++;
         }
 
@@ -58,7 +58,7 @@ public class Logic : MonoBehaviour
 
         while (i < nonogram.Length)
         {
-            columnas.Add(nonogram[i]);
+            columnas.Add(nonogram[i].Replace(" ", ""));
             i++;
         }
         /*
@@ -341,6 +341,8 @@ public class Logic : MonoBehaviour
         verificarCompletos();
 
         yield return new WaitForSeconds(0.2f);
+        //RellenaParcialFilas(0, 0, 0);
+
         //for (int i = 0; i < 11; i++)
         {
             buscarvaciosF();
@@ -580,16 +582,29 @@ public class Logic : MonoBehaviour
             //verificarCompletos();
             return true;
         }
-        else if (j + 1 != y && matriz[i, j + 1] == -1)
-        {
-            a = probarF(i, j + 1);
+        else {
+            while (j + 1 != y)
+            {
+                if (matriz[i, j + 1] == -1)
+                {
+                    a = probarF(i, j + 1);
+                    break;
+                }
+                else
+                {
+                    j++;
+                }
+            }
         }
         if (!a)
         {
-            while (j > 0 && matriz[i, j] == 2)
+            while (j > 0)
             {
-                cubitos[i, j].GetComponent<SpriteRenderer>().sortingOrder = 0;
-                matriz[i, j] = -1;
+                if (matriz[i, j] == 2)
+                {
+                    cubitos[i, j].GetComponent<SpriteRenderer>().sortingOrder = 0;
+                    matriz[i, j] = -1;
+                }
                 j--;
             }
             return false;
@@ -653,7 +668,7 @@ public class Logic : MonoBehaviour
 
         if (columnas[j].ToString().Replace(",", "").Replace(" ", "") == recorredor.Replace(",", "") && probarFX(i))
         {
-            while (matriz[i, j] == 2)
+            while (i >= 0 && matriz[i, j] == 2)
             {
                 matriz[i, j] = 1;
                 changeSprite(cubitos[i, j], state2);
@@ -662,16 +677,30 @@ public class Logic : MonoBehaviour
             //verificarCompletos();
             return true;
         }
-        else if (i + 1 != x && matriz[i+1, j] == -1)
+        else
         {
-            a = probarC(i + 1, j);
+            while (i + 1 != x)
+            {
+                if (matriz[i + 1, j] == -1)
+                {
+                    a = probarF(i + 1, j);
+                    break;
+                }
+                else
+                {
+                    i++;
+                }
+            }
         }
         if (!a)
         {
-            while (i > 0 && matriz[i, j] == 2)
+            while (i > 0)
             {
-                //cubitos[i, j].GetComponent<SpriteRenderer>().sortingOrder = 0;
-                matriz[i, j] = -1;
+                if (matriz[i, j] == 2)
+                {
+                    cubitos[i, j].GetComponent<SpriteRenderer>().sortingOrder = 0;
+                    matriz[i, j] = -1;
+                }
                 i--;
             }
             return false;
@@ -679,6 +708,37 @@ public class Logic : MonoBehaviour
         else
             return true;
     }
+
+    bool RellenaParcialFilas(int i, int j, int cont, int indi)
+    {
+        bool a;
+        if (matriz[i, j] != 0)
+        {   
+            if(matriz[i, j] == -1)
+                matriz[i, j] = 2;
+
+            cont++;
+
+            if(int.Parse(filas[i].ToString().Split(',')[indi]) > cont)
+            {
+                
+                if(j+1 <= y && RellenaParcialFilas(i, j++, cont, indi))
+                {
+                    if(indi-1 < filas[i].ToString().Split(',').Length)
+                    matriz[i, j + 1] = 0;
+                    RellenaParcialFilas(i, j+=2, 0, indi++);
+                }
+            }
+            else
+            {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+
     
     public void verPistas()
     {
