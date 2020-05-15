@@ -340,8 +340,10 @@ public class Logic : MonoBehaviour
         completarBordesColumnas();
         verificarCompletos();
 
+        for (int i = 0; i < y; i++) { RellenaParcialFilas(i, 0, 0, 0); }
+        
+
         yield return new WaitForSeconds(0.2f);
-        //RellenaParcialFilas(0, 0, 0);
 
         //for (int i = 0; i < 11; i++)
         {
@@ -709,33 +711,44 @@ public class Logic : MonoBehaviour
             return true;
     }
 
-    bool RellenaParcialFilas(int i, int j, int cont, int indi)
+    void RellenaParcialFilas(int i, int j, int cont, int indi)
     {
-        bool a;
         if (matriz[i, j] != 0)
-        {   
-            if(matriz[i, j] == -1)
+        {
+            if (matriz[i, j] == -1)
                 matriz[i, j] = 2;
 
             cont++;
 
-            if(int.Parse(filas[i].ToString().Split(',')[indi]) > cont)
+            //Este if en teoria hace que si el indi es igual del largo del string 
+            //significa que ya terminamos de comprobar las pistas porque las pistas si son 5
+            //nuestro len va a dar 5 pero van de 0 a 4 y de ser 5 el indi singifica que nos 
+            //vamos a salir del array
+            if ((filas[i].ToString().Split(',')).Length == indi + 1)
             {
-                
-                if(j+1 <= y && RellenaParcialFilas(i, j++, cont, indi))
-                {
-                    if(indi-1 < filas[i].ToString().Split(',').Length)
-                    matriz[i, j + 1] = 0;
-                    RellenaParcialFilas(i, j+=2, 0, indi++);
-                }
+                return;
             }
-            else
+
+            //Este if revisa que los datos contados sean menores a la cantidad de la pista significa que podemos seguir poniendo unos
+            if (int.Parse(filas[i].ToString().Split(',')[indi]) > cont)
             {
-                return true;
+                RellenaParcialFilas(i, j++, cont, indi);
+            }
+
+
+
+            else
+            //En caso de que sean iguales o mayor, que no creo, signfica que terminamos con esta pista y podemos ir a la siguiente
+            //pista porque significa que teminamos de intentar esto
+            {
+                RellenaParcialFilas(i, j++, 0, indi++);
             }
 
         }
-        return false;
+        else 
+        {
+            RellenaParcialFilas(i, j++, cont, indi);
+        }
     }
 
 
