@@ -713,42 +713,46 @@ public class Logic : MonoBehaviour
 
     void RellenaParcialFilas(int i, int j, int cont, int indi)
     {
+        string ArrayPistas = filas[i].ToString();
         if (matriz[i, j] != 0)
-        {
-            if (matriz[i, j] == -1)
+            {
+            if (matriz[i, j] == -1) {
                 matriz[i, j] = 2;
+                changeSprite(cubitos[i, j], state2);
+            }
+                    
 
             cont++;
 
-            //Este if en teoria hace que si el indi es igual del largo del string 
-            //significa que ya terminamos de comprobar las pistas porque las pistas si son 5
-            //nuestro len va a dar 5 pero van de 0 a 4 y de ser 5 el indi singifica que nos 
-            //vamos a salir del array
-            if ((filas[i].ToString().Split(',')).Length == indi + 1)
-            {
-                return;
+                //Este if en teoria hace que si el indi es igual del largo del string 
+                //significa que ya terminamos de comprobar las pistas porque las pistas si son 5
+                //nuestro len va a dar 5 pero van de 0 a 4 y de ser 5 el indi singifica que nos 
+                //vamos a salir del array
+                if (ArrayPistas.Split(',').Length == indi + 1)
+                {
+                    return;
+                }
+            string casillas_pista = (filas[i].ToString().Split(','))[indi];
+                //Este if revisa que los datos contados sean menores a la cantidad de la pista significa que podemos seguir poniendo unos
+                if (int.Parse(casillas_pista) > cont)
+                {
+                    RellenaParcialFilas(i, j++, cont, indi);
+                }
+
+
+
+                else
+                //En caso de que sean iguales o mayor, que no creo, signfica que terminamos con esta pista y podemos ir a la siguiente
+                //pista porque significa que teminamos de intentar esto
+                {
+                    RellenaParcialFilas(i, j++, 0, indi++);
+                }
+
             }
-
-            //Este if revisa que los datos contados sean menores a la cantidad de la pista significa que podemos seguir poniendo unos
-            if (int.Parse(filas[i].ToString().Split(',')[indi]) > cont)
-            {
-                RellenaParcialFilas(i, j++, cont, indi);
-            }
-
-
-
             else
-            //En caso de que sean iguales o mayor, que no creo, signfica que terminamos con esta pista y podemos ir a la siguiente
-            //pista porque significa que teminamos de intentar esto
             {
-                RellenaParcialFilas(i, j++, 0, indi++);
+                RellenaParcialFilas(i, j++, cont++, indi);
             }
-
-        }
-        else 
-        {
-            RellenaParcialFilas(i, j++, cont, indi);
-        }
     }
 
 
