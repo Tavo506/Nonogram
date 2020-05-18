@@ -339,7 +339,7 @@ public class Logic : MonoBehaviour
         completarBordesFilas();
         completarBordesColumnas();
         verificarCompletos();
-
+        verPistas();
         for (int i = 0; i < y; i++) { RellenaParcialFilas(i, 0, 0, 0); }
         
 
@@ -713,7 +713,9 @@ public class Logic : MonoBehaviour
 
     void RellenaParcialFilas(int i, int j, int cont, int indi)
     {
-        string ArrayPistas = filas[i].ToString();
+        string StringPistas = filas[i].ToString();
+        string[] ArrayPistas = StringPistas.Split(',');
+
         if (matriz[i, j] != 0)
             {
             if (matriz[i, j] == -1) {
@@ -728,13 +730,13 @@ public class Logic : MonoBehaviour
                 //significa que ya terminamos de comprobar las pistas porque las pistas si son 5
                 //nuestro len va a dar 5 pero van de 0 a 4 y de ser 5 el indi singifica que nos 
                 //vamos a salir del array
-                if (ArrayPistas.Split(',').Length == indi + 1)
+                if (ArrayPistas.Length == indi + 1)
                 {
                     return;
                 }
-            string casillas_pista = (filas[i].ToString().Split(','))[indi];
+
                 //Este if revisa que los datos contados sean menores a la cantidad de la pista significa que podemos seguir poniendo unos
-                if (int.Parse(casillas_pista) > cont)
+                if (int.Parse(ArrayPistas[indi]) > cont)
                 {
                     RellenaParcialFilas(i, j++, cont, indi);
                 }
