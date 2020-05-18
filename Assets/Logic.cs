@@ -84,7 +84,7 @@ public class Logic : MonoBehaviour
         */
 
         StartCoroutine(NonogramStart());
-        
+
     }
 
 
@@ -126,7 +126,7 @@ public class Logic : MonoBehaviour
 
 
     IEnumerator resolverNonograma()
-    
+
     {
 
         revisarPistasNulas();
@@ -201,7 +201,7 @@ public class Logic : MonoBehaviour
                 }
                 else
                 {
-                    foreach(int pista in pistas)
+                    foreach (int pista in pistas)
                     {
                         if (y / 2 < pista) //Si hay parte fija en el medio
                         {
@@ -308,7 +308,7 @@ public class Logic : MonoBehaviour
                 }
             }
         }
-        
+
 
         yield return new WaitForSeconds(0.2f);
 
@@ -363,14 +363,13 @@ public class Logic : MonoBehaviour
     }
 
 
-    
     public void verPistas()
     {
         Debug.Log("FILAS");
         for (int i = 0; i < x; i++)
         {
             string f = i + ": ";
-            for(int j = 0; j < filas[i].Length; j++)
+            for (int j = 0; j < filas[i].Length; j++)
                 f += filas[i][j] + ", ";
             Debug.Log(f);
         }
