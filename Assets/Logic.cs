@@ -313,6 +313,7 @@ public class Logic : MonoBehaviour
         completarBordesColumnas();
 
         VerificaCompletos();
+        IntentaRellenar();
 
 
 
@@ -414,15 +415,15 @@ public class Logic : MonoBehaviour
     {
         for (int i = 0; i < x; i++)
         {
-            if (filas[i][0] != "0")
-                VerificaFilas(i);
+            if (filas[i][0] != "0" && VerificaFilas(i))
+                setFilasVacios(i);
 
-            if (columnas[i][0] != "0")
-                VerificaColumnas(i);
+            if (columnas[i][0] != "0" && VerificaColumnas(i))
+                setColumnasVacios(i);
         }
     }
 
-    void VerificaFilas(int i)
+    bool VerificaFilas(int i)
     {
         string recorredor = "";
         int n = 0;
@@ -441,11 +442,12 @@ public class Logic : MonoBehaviour
 
         if (recorredor.Replace(",", "") == string.Join("", filas[i]))
         {
-            setFilasVacios(i);
+            return true;
         }
+        else return false;
     }
 
-    void VerificaColumnas(int j)
+    bool VerificaColumnas(int j)
     {
         string recorredor = "";
         int n = 0;
@@ -464,8 +466,9 @@ public class Logic : MonoBehaviour
 
         if (recorredor.Replace(",", "") == string.Join("", columnas[j]))
         {
-            setColumnasVacios(j);
+            return true;
         }
+        else return false;
     }
 
     void setFilasVacios(int i)
@@ -509,5 +512,70 @@ public class Logic : MonoBehaviour
             Debug.Log(c);
         }
     }
+
+
+    void backTrackFila(int fila,int columna, int contador) {
+
+        while (contador > 0) {
+            if (matriz[fila, columna + contador] == 2)
+            {
+                matriz[fila, columna + contador] = 0;
+                contador--;
+            }
+            else contador--;
+        }
+    
+    }
+
+
+
+    void intentaPonerPunto(int fila, int columna) {
+        int contador = 0;
+        while (!VerificaFilas(fila) && columna+contador<x) {
+
+            if (matriz[fila, columna + contador] == -1){
+                matriz[fila, columna + contador] = 2;
+                contador++;
+            }
+            else { contador++; continue; }
+
+            if (VerificaFilas(fila))
+            {
+                Debug.Log("ei igual ctm");
+                break;
+
+            }
+           
+        }
+        if (VerificaFilas(fila))
+
+        for (int i = 0; i < contador; i++) {
+            changeSprite(cubitos[fila, columna + i], state2);
+        }
+
+        else { backTrackFila(fila, columna, contador-1); return; }
+
+
+    }
+
+
+    void IntentaRellenar() 
+    {
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+
+                if (matriz[i,j]==-1 && !(VerificaColumnas(j))){
+                    
+                        intentaPonerPunto(i, j);
+
+                }
+
+            }
+               
+        }
+    
+    }
+
 
 }
