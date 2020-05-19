@@ -95,8 +95,10 @@ public class Logic : MonoBehaviour
         generarNonograma();
         transform.position = new Vector2(-x / 7.2f, y / 7.2f);
         yield return new WaitForSeconds(0.1f);
-        StartCoroutine(resolverNonograma(0.2f));
+        //StartCoroutine(resolverNonograma(0.2f));
     }
+
+
 
     void generarNonograma()
     {
@@ -116,6 +118,7 @@ public class Logic : MonoBehaviour
     }
 
 
+
     void changeSprite(GameObject cuadro, Sprite estado)
     {
 
@@ -124,6 +127,9 @@ public class Logic : MonoBehaviour
         //cuadro.transform.name += " - " + estado.name;
     }
 
+    /*
+     * Genera la solucion de las filas lo más a la izquierda posible
+     */
     void crearSolucion()
     {
         for(int i = 0; i < x; i++)
@@ -132,7 +138,7 @@ public class Logic : MonoBehaviour
             int contador = 0;
             for(int j = 0; j < y && indice < filas[i].Length; j++)
             {
-                if(contador < int.Parse(filas[i][indice]))
+                if (contador < int.Parse(filas[i][indice]))
                 {
                     matriz[i, j] = 1;
                     changeSprite(cubitos[i, j], state2);
@@ -147,51 +153,86 @@ public class Logic : MonoBehaviour
         }
     }
 
+    /*
+     * 
+     * Funcion inicial al resolver el nonograma +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     * 
+     */
     IEnumerator resolverNonograma(float time)
     {
+        yield return new WaitForSeconds(time);
 
         crearSolucion();
 
         yield return new WaitForSeconds(time);
 
-        NonogramPuntoSolve(y-1);
+         NonogramPuntoSolve(0, 0, false);
 
+        Debug.Log("El nonograma se resolvió o no hizo falta resolverlo");
     }
+    /*
+     * 
+     * Esto es solo para encontrar más rápido la función y no buscar tanto :v +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
 
-    bool NonogramPuntoSolve(int columna)
+    void NonogramPuntoSolve(int columna, int fila, bool corregir)
     {
-        if (columna == 0 && VerificaColumnas(columna))
-            return true;
+        if (columna == y)
+            return;
 
-        if (VerificaColumnas(columna))
+        if (corregir)
         {
-            if(NonogramPuntoSolve(columna - 1))
-                return true;
-        }
-        else
-        {
-            if (!acomoda(columna))
-                return false;
-
-            if (NonogramPuntoSolve(columna))
-                return true;
-        }
-        
-        return true;
-    }
-
-    bool acomoda(int columna)
-    {
-        for(int fila = 0; fila < x; fila++)
-        {
-            if(matriz[fila, columna] == -1)
+            if (backtrack(columna))
             {
-                int bloque = buscarBloque(fila, columna);
-                ponerBloque(fila, columna, bloque);
+                acomoda(columna, fila+1);
+                if (VerificaColumnas(columna))
+                    return;
+                else
+                    NonogramPuntoSolve(columna, fila+1, true);
+            }
+            else
+            {
+                NonogramPuntoSolve(columna + 1, fila, true);
             }
         }
 
-        return true;
+        else
+        {        
+            NonogramPuntoSolve(columna + 1, fila, false);
+
+            if (!VerificaColumnas(columna))
+            {
+                acomoda(columna, fila);
+
+                if (VerificaColumnas(columna))
+                    return;
+                else
+                {
+                    NonogramPuntoSolve(columna + 1, fila, true);
+                    NonogramPuntoSolve(columna, fila, false);
+                }
+            }
+        }
+    }
+
+    void acomoda(int columna, int inicio)
+    {
+        int cont = 0, indice = 0;
+        for(int fila = inicio; fila < x && indice < columnas[columna].Length; fila++)
+        {
+            if(cont == int.Parse(columnas[columna][indice]))
+            {
+                indice++;
+                cont = 0;
+            }
+
+            else if(matriz[fila, columna] == -1 && (columna + 1 == y || matriz[fila, columna + 1] == -1))
+            {
+                int bloque = buscarBloque(fila, columna);
+                ponerBloque(fila, columna, bloque);
+                cont++;
+            }
+        }
     }
 
     int buscarBloque(int fila, int columna)
@@ -212,15 +253,62 @@ public class Logic : MonoBehaviour
                 changeSprite(cubitos[fila, j], state1);
             }
         }
+        if (encontrado)
+            return cont;
         return 0;
     }
 
     void ponerBloque(int fila, int columna, int bloque)
     {
-        for(int j = bloque; j >= 0; j--)
+        for(int j = bloque-1; j >= 0; j--)
         {
             matriz[fila, columna-j] = 1;
             changeSprite(cubitos[fila, columna-j], state2);
+        }
+    }
+
+    bool backtrack(int columna)
+    {
+        bool diferente = false;
+        for(int i = 0; i < x; i++)
+        {
+            if(matriz[i, columna] == 1 && (columna + 1 == y || matriz[i, columna + 1] != 1))
+            {
+                int x = dondePonerBack(i, columna);
+                if (x != -1)
+                {
+                    recolocar(i, x, buscarBloque(i, columna));
+                    diferente = true;
+                }
+                    
+            }
+        }
+        return diferente;
+    }
+
+    int dondePonerBack(int fila, int columna)
+    {
+        bool buscando = false;
+        for(int i = columna-1; i >= 0; i--)
+        {
+            if (!buscando && matriz[fila, i] == -1)
+                buscando = true;
+            if(buscando && matriz[fila, i] == 1)
+            {
+                return i + 2;
+            }
+        }
+        if (!buscando)
+            return -1;
+        return 0;
+    }
+
+    void recolocar(int fila, int columna, int bloque)
+    {
+        for(int j = columna, cont = 0; cont < bloque; cont++, j++)
+        {
+            matriz[fila, j] = 1;
+            changeSprite(cubitos[fila, j], state2);
         }
     }
 
@@ -250,6 +338,7 @@ public class Logic : MonoBehaviour
 
     string crearStringFila(int i)
     {
+        
         string recorredor = "";
         int n = 0;
         for (int conta = 0; conta < x; conta++)
@@ -273,6 +362,10 @@ public class Logic : MonoBehaviour
     {
         string recorredor = "";
         int n = 0;
+
+        if (columnaVacia(j)) 
+            return "0";
+
         for (int conta = 0; conta < y; conta++)
         {
             if (matriz[conta, j] == 1 || matriz[conta, j] == 2)
@@ -284,10 +377,33 @@ public class Logic : MonoBehaviour
                 recorredor += n + ",";
                 n = 0;
             }
+            if (conta + 1 == 0 && n != 0)
+                recorredor += n;
         }
-        if (recorredor.EndsWith(","))
-            recorredor = recorredor.Remove(recorredor.Length - 1);
-        return recorredor;
+        try
+        {
+            
+            if (recorredor == "")
+                return "0";
+            if (recorredor.EndsWith(","))
+                recorredor = recorredor.Remove(recorredor.Length - 1);
+            return recorredor;
+        }
+        catch
+        {
+            Debug.Log("se murió");
+            return "0";
+        }
+    }
+
+    bool columnaVacia(int j)
+    {
+        for(int i = 0; i < x; i++)
+        {
+            if (matriz[i, j] != -1)
+                return false;
+        }
+        return true;
     }
 
 
@@ -306,5 +422,16 @@ public class Logic : MonoBehaviour
             string c = i+1 + ": " + string.Join(", ", columnas[i]);
             Debug.Log(c);
         }
+    }
+
+    public void solveSinPausa()
+    {
+        StartCoroutine(resolverNonograma(0f));
+    }
+
+
+    public void solveConPausa()
+    {
+        StartCoroutine(resolverNonograma(1f));
     }
 }
