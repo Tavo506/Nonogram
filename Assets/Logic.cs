@@ -129,9 +129,20 @@ public class Logic : MonoBehaviour
         for(int i = 0; i < x; i++)
         {
             int indice = 0;
-            for(int j = 0; j < y; j++)
+            int contador = 0;
+            for(int j = 0; j < y && indice < filas[i].Length; j++)
             {
-
+                if(contador < int.Parse(filas[i][indice]))
+                {
+                    matriz[i, j] = 1;
+                    changeSprite(cubitos[i, j], state2);
+                    contador++;
+                }
+                else
+                {
+                    contador = 0;
+                    indice++;
+                }
             }
         }
     }
@@ -143,6 +154,74 @@ public class Logic : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
+        NonogramPuntoSolve(y-1);
+
+    }
+
+    bool NonogramPuntoSolve(int columna)
+    {
+        if (columna == 0 && VerificaColumnas(columna))
+            return true;
+
+        if (VerificaColumnas(columna))
+        {
+            if(NonogramPuntoSolve(columna - 1))
+                return true;
+        }
+        else
+        {
+            if (!acomoda(columna))
+                return false;
+
+            if (NonogramPuntoSolve(columna))
+                return true;
+        }
+        
+        return true;
+    }
+
+    bool acomoda(int columna)
+    {
+        for(int fila = 0; fila < x; fila++)
+        {
+            if(matriz[fila, columna] == -1)
+            {
+                int bloque = buscarBloque(fila, columna);
+                ponerBloque(fila, columna, bloque);
+            }
+        }
+
+        return true;
+    }
+
+    int buscarBloque(int fila, int columna)
+    {
+        int cont = 0;
+        bool encontrado = false;
+        for(int j = columna; j >= 0; j--)
+        {
+            if (matriz[fila, j] == -1 && !encontrado)
+                continue;
+            else if(matriz[fila, j] == -1 && encontrado)
+                return cont;
+            else if(matriz[fila, j] == 1)
+            {
+                encontrado = true;
+                cont++;
+                matriz[fila, j] = -1;
+                changeSprite(cubitos[fila, j], state1);
+            }
+        }
+        return 0;
+    }
+
+    void ponerBloque(int fila, int columna, int bloque)
+    {
+        for(int j = bloque; j >= 0; j--)
+        {
+            matriz[fila, columna-j] = 1;
+            changeSprite(cubitos[fila, columna-j], state2);
+        }
     }
 
 
