@@ -9,8 +9,8 @@ public class Logic : MonoBehaviour
     int[,] matriz;
     GameObject[,] cubitos;
     int x, y;
+    int ultimoAcomodo;
 
-    bool resuelto = false;
     public Sprite state1,   //Blanco
         state2, //Azul
         state3; //X
@@ -160,42 +160,52 @@ public class Logic : MonoBehaviour
      */
     IEnumerator resolverNonograma(float time)
     {
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
         yield return new WaitForSeconds(time);
 
         crearSolucion();
 
         yield return new WaitForSeconds(time);
 
-        //for (int aux = y-1; aux >= 0; aux--)
-            NonogramPuntoSolve(4, 0);
+        for (int aux = y - 1; aux >= 0; aux--)
+            if (NonogramPuntoSolve(aux, 0))
+                break;
 
 
-        Debug.Log("El nonograma se resolvió o no hizo falta resolverlo");
+        double tiempo = sw.Elapsed.TotalMilliseconds;
+        Debug.Log("Tiempo de ejecución: " + tiempo + " milisegundos \n");
+
+        if (resuelto())
+            Debug.Log("Nonograma resuelto!!!");
+        else
+            Debug.Log("No se pudo resolver el nonograma :c");
     }
     /*
      * 
      * Esto es solo para encontrar más rápido la función y no buscar tanto :v +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
 
-    void NonogramPuntoSolve(int columna, int fila)
+    bool NonogramPuntoSolve(int columna, int fila)
     {
         if (!VerificaColumnas(columna)) {
             acomoda(columna, fila);
         }
         if (VerificaColumnas(columna)) 
         {
-            return;
+            return true; ;
         }
         else
         {
-
-            //backway(columna + 1, fila);
-            /*int contador = 0;
+            return false;
+            /*
+            int contador = 0;
             while (!VerificaColumnas(columna) && columna + 1 < y && fila + contador + 1 < x) { 
                 backway(columna + 1 ,fila+contador);
                 contador++;
-            }*/
-
+            }
+            */
         }
     }
 
@@ -230,9 +240,10 @@ public class Logic : MonoBehaviour
     {
         int aux = buscarBloque(fila, columna);
         invPonerBloque(fila, dondePonerBack(fila, columna), aux);
+        
         if (!VerificaColumnas(columna)) {
 
-            NonogramPuntoSolve(columna, filaOrigen +1);
+            NonogramPuntoSolve(columna, ultimoAcomodo +1);
         
         }else backway(columna + 1, filaOrigen);
     }
@@ -248,15 +259,42 @@ public class Logic : MonoBehaviour
             {
                 indice++;
                 cont = 0;
+                if (VerificaColumnas(columna))
+                    return;
             }
 
             else if(matriz[fila, columna] == -1 && (columna + 1 == y || matriz[fila, columna + 1] == -1))
             {
                 int bloque = buscarBloque(fila, columna);
                 ponerBloque(fila, columna, bloque);
+                ultimoAcomodo = fila;
                 cont++;
             }
+            else if(matriz[fila, columna] == 1)
+            {
+                cont++;
+            }
+            else if(cont != 0)
+            {
+                fila = corrige(fila-1, columna);
+                cont = 0;
+            }
         }
+    }
+
+    int corrige(int fila, int columna)
+    {
+        while(matriz[fila, columna] == 1) {
+            int aux = buscarBloque(fila, columna);
+            invPonerBloque(fila, dondePonerBack(fila, columna), aux);
+
+            if (fila - 1 >= 0)
+                fila--;
+            else
+                break;
+            
+        }
+        return fila+1;
     }
 
     int buscarBloque(int fila, int columna)
@@ -426,6 +464,16 @@ public class Logic : MonoBehaviour
             string c = i+1 + ": " + string.Join(", ", columnas[i]);
             Debug.Log(c);
         }
+    }
+
+    bool resuelto()
+    {
+        for(int i = 0; i < y; i++)
+        {
+            if (!VerificaColumnas(i))
+                return false;
+        }
+        return true;
     }
 
     public void solveSinPausa()
