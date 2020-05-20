@@ -178,8 +178,9 @@ public class Logic : MonoBehaviour
 
     void NonogramPuntoSolve(int columna, int fila)
     {
-        if(!VerificaColumnas(columna))
+        if (!VerificaColumnas(columna)) {
             acomoda(columna, fila);
+        }
         if (VerificaColumnas(columna)) 
         {
             return;
@@ -246,6 +247,7 @@ public class Logic : MonoBehaviour
             else if(matriz[fila, columna] == -1 && (columna + 1 == y || matriz[fila, columna + 1] == -1))
             {
                 int bloque = buscarBloque(fila, columna);
+                Debug.Log(fila + ", " + columna);
                 ponerBloque(fila, columna, bloque);
                 cont++;
             }
@@ -279,6 +281,7 @@ public class Logic : MonoBehaviour
     {
         for(int j = bloque-1; j >= 0; j--)
         {
+        Debug.Log(fila + ", " + columna);
             matriz[fila, columna-j] = 1;
             changeSprite(cubitos[fila, columna-j], state2);
         }
@@ -292,7 +295,6 @@ public class Logic : MonoBehaviour
             if (matriz[fila, aux] == 1)  { while (aux > 0 && matriz[fila, aux] == 1)  { aux--; } }
             if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
         return aux+1;
-        
     }
 
 
