@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class Logic : MonoBehaviour
 {
-    int[,] matriz;
+    int[,] matriz, copia;
     GameObject[,] cubitos;
     int x, y;
     int ultimoAcomodo;
@@ -170,8 +170,7 @@ public class Logic : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         for (int aux = y - 1; aux >= 0; aux--)
-            if (NonogramPuntoSolve(aux, 0))
-                break;
+            NonogramPuntoSolve(aux, 0);
 
 
         double tiempo = sw.Elapsed.TotalMilliseconds;
@@ -190,6 +189,7 @@ public class Logic : MonoBehaviour
     bool NonogramPuntoSolve(int columna, int fila)
     {
         if (!VerificaColumnas(columna)) {
+            copia = matriz;
             acomoda(columna, fila);
         }
         if (VerificaColumnas(columna)) 
@@ -198,15 +198,16 @@ public class Logic : MonoBehaviour
         }
         else
         {
-            return false;
-            /*
+            //matriz = copia;
+            
             int contador = 0;
             while (!VerificaColumnas(columna) && columna + 1 < y && fila + contador + 1 < x) { 
                 backway(columna + 1 ,fila+contador);
                 contador++;
             }
-            */
+            
         }
+        return false;
     }
 
     void imprimeMat() {
@@ -253,6 +254,9 @@ public class Logic : MonoBehaviour
     void acomoda(int columna, int inicio)
     {
         int cont = 0, indice = 0;
+
+        revisaIndicies(columna);
+
         for(int fila = inicio; fila < x && indice < columnas[columna].Length; fila++)
         {
             if(cont == int.Parse(columnas[columna][indice]))
@@ -280,6 +284,13 @@ public class Logic : MonoBehaviour
                 cont = 0;
             }
         }
+    }
+
+    int revisaIndices(int columna)
+    {
+        int indice = 0;
+        for (int i = 0; i < x; i++) { }
+        return indice;
     }
 
     int corrige(int fila, int columna)
