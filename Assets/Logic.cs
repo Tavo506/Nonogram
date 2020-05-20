@@ -166,8 +166,9 @@ public class Logic : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-        for (int aux = y-1; aux >= 0; aux--)
-            NonogramPuntoSolve(aux, 0);
+        //for (int aux = y-1; aux >= 0; aux--)
+            NonogramPuntoSolve(4, 0);
+
 
         Debug.Log("El nonograma se resolvió o no hizo falta resolverlo");
     }
@@ -187,9 +188,14 @@ public class Logic : MonoBehaviour
         }
         else
         {
-            backway(columna+1);
-            backway(columna + 2);
-            //imprimeMat();
+
+            //backway(columna + 1, fila);
+            /*int contador = 0;
+            while (!VerificaColumnas(columna) && columna + 1 < y && fila + contador + 1 < x) { 
+                backway(columna + 1 ,fila+contador);
+                contador++;
+            }*/
+
         }
     }
 
@@ -205,30 +211,30 @@ public class Logic : MonoBehaviour
     
     }
 
-    bool backway(int col) 
+    void backway(int col, int fila) 
     {
 
-        for (int i = 0; i < x; i++) 
+        for (int i = fila; i < x; i++) 
         {
-            if (col < y-1 && matriz[i, col] == 1 && matriz[i, col + 1] != 1) {
+            if (col+1 < y && matriz[i, col] == 1 && matriz[i, col + 1] != 1) {
 
-                moverBloque(i, col);
+                moverBloque(i, col, fila);
+                return;
 
             }
         }
-        return false;
+        return;
     }
 
-    void moverBloque(int fila, int columna) 
+    void moverBloque(int fila, int columna, int filaOrigen) 
     {
         int aux = buscarBloque(fila, columna);
-        ponerBloque(fila, dondePonerBack(fila, columna), aux);
-        if (!VerificaColumnas(columna)) { 
-            
-            
-            NonogramPuntoSolve(columna, fila + 1);
+        invPonerBloque(fila, dondePonerBack(fila, columna), aux);
+        if (!VerificaColumnas(columna)) {
+
+            NonogramPuntoSolve(columna, filaOrigen +1);
         
-        }
+        }else backway(columna + 1, filaOrigen);
     }
 
 
@@ -247,7 +253,6 @@ public class Logic : MonoBehaviour
             else if(matriz[fila, columna] == -1 && (columna + 1 == y || matriz[fila, columna + 1] == -1))
             {
                 int bloque = buscarBloque(fila, columna);
-                Debug.Log(fila + ", " + columna);
                 ponerBloque(fila, columna, bloque);
                 cont++;
             }
@@ -262,8 +267,9 @@ public class Logic : MonoBehaviour
         {
             if (matriz[fila, j] == -1 && !encontrado)
                 continue;
-            else if(matriz[fila, j] == -1 && encontrado)
+            else if(matriz[fila, j] == -1 && encontrado) { 
                 return cont;
+            }
             else if(matriz[fila, j] == 1)
             {
                 encontrado = true;
@@ -281,9 +287,19 @@ public class Logic : MonoBehaviour
     {
         for(int j = bloque-1; j >= 0; j--)
         {
-        Debug.Log(fila + ", " + columna);
+            //Debug.Log(fila + ", " + columna);
             matriz[fila, columna-j] = 1;
             changeSprite(cubitos[fila, columna-j], state2);
+        }
+    }
+
+    void invPonerBloque(int fila, int columna, int bloque)
+    {
+        for (int j = columna; j < columna+bloque; j++)
+        {
+            //Debug.Log(fila + ", " + columna);
+            matriz[fila, j] = 1;
+            changeSprite(cubitos[fila, j], state2);
         }
     }
 
@@ -294,6 +310,9 @@ public class Logic : MonoBehaviour
             if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
             if (matriz[fila, aux] == 1)  { while (aux > 0 && matriz[fila, aux] == 1)  { aux--; } }
             if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
+
+        if (aux == 0)
+            return 0;
         return aux+1;
     }
 
