@@ -166,7 +166,8 @@ public class Logic : MonoBehaviour
 
         yield return new WaitForSeconds(time);
 
-         NonogramPuntoSolve(0, 0, false);
+        for (int aux = y-1; aux >= 0; aux--)
+            NonogramPuntoSolve(aux, 0);
 
         Debug.Log("El nonograma se resolvió o no hizo falta resolverlo");
     }
@@ -175,45 +176,48 @@ public class Logic : MonoBehaviour
      * Esto es solo para encontrar más rápido la función y no buscar tanto :v +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
 
-    void NonogramPuntoSolve(int columna, int fila, bool corregir)
+    void NonogramPuntoSolve(int columna, int fila)
     {
-        if (columna == y)
-            return;
-
-        if (corregir)
+        if(!VerificaColumnas(columna))
+            acomoda(columna, fila);
+        if (VerificaColumnas(columna)) 
         {
-            if (backtrack(columna))
-            {
-                acomoda(columna, fila+1);
-                if (VerificaColumnas(columna))
-                    return;
-                else
-                    NonogramPuntoSolve(columna, fila+1, true);
-            }
-            else
-            {
-                NonogramPuntoSolve(columna + 1, fila, true);
-            }
+            return;
         }
-
         else
-        {        
-            NonogramPuntoSolve(columna + 1, fila, false);
-
-            if (!VerificaColumnas(columna))
-            {
-                acomoda(columna, fila);
-
-                if (VerificaColumnas(columna))
-                    return;
-                else
-                {
-                    NonogramPuntoSolve(columna + 1, fila, true);
-                    NonogramPuntoSolve(columna, fila, false);
-                }
-            }
+        {
+            backway(columna+1);
+            backway(columna + 2);
         }
     }
+
+    bool backway(int col) 
+    {
+
+        for (int i = 0; i < x; i++) 
+        {
+            if (col < y && matriz[i, col] == 1 && matriz[i, col + 1] != 1) {
+
+                moverBloque(i, col);
+
+            }
+        }
+        return false;
+    }
+
+    void moverBloque(int fila, int columna) 
+    {
+        int aux = buscarBloque(fila, columna);
+        ponerBloque(fila, dondePonerBack(fila, columna), aux);
+        if (!VerificaColumnas(columna)) { 
+            
+            Debug.Log(columna);
+            NonogramPuntoSolve(columna, fila + 1);
+        
+        }
+    }
+
+
 
     void acomoda(int columna, int inicio)
     {
@@ -267,40 +271,20 @@ public class Logic : MonoBehaviour
         }
     }
 
-    bool backtrack(int columna)
+    void backtrack(int columna)
     {
-        bool diferente = false;
-        for(int i = 0; i < x; i++)
-        {
-            if(matriz[i, columna] == 1 && (columna + 1 == y || matriz[i, columna + 1] != 1))
-            {
-                int x = dondePonerBack(i, columna);
-                if (x != -1)
-                {
-                    recolocar(i, x, buscarBloque(i, columna));
-                    diferente = true;
-                }
-                    
-            }
-        }
-        return diferente;
+        
     }
 
     int dondePonerBack(int fila, int columna)
     {
-        bool buscando = false;
-        for(int i = columna-1; i >= 0; i--)
-        {
-            if (!buscando && matriz[fila, i] == -1)
-                buscando = true;
-            if(buscando && matriz[fila, i] == 1)
-            {
-                return i + 2;
-            }
-        }
-        if (!buscando)
-            return -1;
-        return 0;
+        int aux = columna;
+
+            if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
+            if (matriz[fila, aux] == 1) { while (aux > 0 && matriz[fila, aux] == 1) { aux--; } }
+            if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
+        return aux+1;
+        
     }
 
     void recolocar(int fila, int columna, int bloque)
