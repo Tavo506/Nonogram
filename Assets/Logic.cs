@@ -188,7 +188,20 @@ public class Logic : MonoBehaviour
         {
             backway(columna+1);
             backway(columna + 2);
+            //imprimeMat();
         }
+    }
+
+    void imprimeMat() {
+
+        for (int i = 0; i < x; i++) {
+            string fila = "";
+            for (int j = 0; j < y; j++) {
+                fila = fila + matriz[i, j] + ", ";
+            }
+            Debug.Log(fila);
+        }
+    
     }
 
     bool backway(int col) 
@@ -196,7 +209,7 @@ public class Logic : MonoBehaviour
 
         for (int i = 0; i < x; i++) 
         {
-            if (col < y && matriz[i, col] == 1 && matriz[i, col + 1] != 1) {
+            if (col < y-1 && matriz[i, col] == 1 && matriz[i, col + 1] != 1) {
 
                 moverBloque(i, col);
 
@@ -211,7 +224,7 @@ public class Logic : MonoBehaviour
         ponerBloque(fila, dondePonerBack(fila, columna), aux);
         if (!VerificaColumnas(columna)) { 
             
-            Debug.Log(columna);
+            
             NonogramPuntoSolve(columna, fila + 1);
         
         }
@@ -271,29 +284,15 @@ public class Logic : MonoBehaviour
         }
     }
 
-    void backtrack(int columna)
-    {
-        
-    }
-
     int dondePonerBack(int fila, int columna)
     {
         int aux = columna;
 
             if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
-            if (matriz[fila, aux] == 1) { while (aux > 0 && matriz[fila, aux] == 1) { aux--; } }
+            if (matriz[fila, aux] == 1)  { while (aux > 0 && matriz[fila, aux] == 1)  { aux--; } }
             if (matriz[fila, aux] == -1) { while (aux > 0 && matriz[fila, aux] == -1) { aux--; } }
         return aux+1;
         
-    }
-
-    void recolocar(int fila, int columna, int bloque)
-    {
-        for(int j = columna, cont = 0; cont < bloque; cont++, j++)
-        {
-            matriz[fila, j] = 1;
-            changeSprite(cubitos[fila, j], state2);
-        }
     }
 
 
