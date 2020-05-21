@@ -158,7 +158,7 @@ public class Logic : MonoBehaviour
      * Funcion inicial al resolver el nonograma +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      * 
      */
-    IEnumerator resolverNonograma(float time)
+    IEnumerator resolverNonograma(float time)   //Con pausas
     {
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         sw.Start();
@@ -170,8 +170,32 @@ public class Logic : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         for (int aux = y - 1; aux >= 0; aux--)
+        {
             NonogramPuntoSolve(aux, 0);
+            yield return new WaitForSeconds(time);
+        }
 
+
+        double tiempo = sw.Elapsed.TotalMilliseconds;
+        Debug.Log("Tiempo de ejecución: " + tiempo + " milisegundos \n");
+
+        if (resuelto())
+            Debug.Log("Nonograma resuelto!!!");
+        else
+            Debug.Log("No se pudo resolver el nonograma :c");
+    }
+
+    void resolverNonograma()    //Sin pausas
+    {
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+
+        crearSolucion();
+
+        for (int aux = y - 1; aux >= 0; aux--)
+        {
+            NonogramPuntoSolve(aux, 0);
+        }
 
         double tiempo = sw.Elapsed.TotalMilliseconds;
         Debug.Log("Tiempo de ejecución: " + tiempo + " milisegundos \n");
@@ -480,7 +504,7 @@ public class Logic : MonoBehaviour
 
     public void solveSinPausa()
     {
-        StartCoroutine(resolverNonograma(0f));
+       resolverNonograma();
     }
 
 
