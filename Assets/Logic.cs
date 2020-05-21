@@ -186,7 +186,7 @@ public class Logic : MonoBehaviour
      * Esto es solo para encontrar más rápido la función y no buscar tanto :v +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
 
-    bool NonogramPuntoSolve(int columna, int fila)
+    void NonogramPuntoSolve(int columna, int fila)
     {
         if (!VerificaColumnas(columna)) {
             copia = matriz;
@@ -194,7 +194,7 @@ public class Logic : MonoBehaviour
         }
         if (VerificaColumnas(columna)) 
         {
-            return true; ;
+            return;
         }
         else
         {
@@ -207,7 +207,7 @@ public class Logic : MonoBehaviour
             }
             
         }
-        return false;
+        return;
     }
 
     void imprimeMat() {
@@ -255,8 +255,6 @@ public class Logic : MonoBehaviour
     {
         int cont = 0, indice = 0;
 
-        revisaIndicies(columna);
-
         for(int fila = inicio; fila < x && indice < columnas[columna].Length; fila++)
         {
             if(cont == int.Parse(columnas[columna][indice]))
@@ -284,13 +282,6 @@ public class Logic : MonoBehaviour
                 cont = 0;
             }
         }
-    }
-
-    int revisaIndices(int columna)
-    {
-        int indice = 0;
-        for (int i = 0; i < x; i++) { }
-        return indice;
     }
 
     int corrige(int fila, int columna)
